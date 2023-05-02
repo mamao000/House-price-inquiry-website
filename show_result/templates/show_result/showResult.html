@@ -1,0 +1,111 @@
+{% extends 'base.html'%}
+{% block title %}
+<title>Result</title>
+{% endblock %}
+{% block content %}
+<div class="col-xs-12" style="height:2em;"></div>
+<div class="container">
+  {% if avergePrice == 0 %}
+  <div class="card">
+    <div class="card-body">
+      <h3>No matching result found</h3>
+    </div>
+  </div>
+  {% else %}
+  <div class="card">
+    <div class="card-body">
+      <div id="map" style="width: 100%; height: 500px;"></div>
+      <script type="text/javascript">
+        var locations = {{displayLocationPass | safe}}
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 15,
+          center: new google.maps.LatLng(locations[0][1], locations[0][2]),
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+
+        var infowindow = new google.maps.InfoWindow();
+
+        var marker, i;
+
+        const svgMarker = {
+          path: "M10.453 14.016l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM12 2.016q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
+          fillColor: "blue",
+          fillOpacity: 0.6,
+          strokeWeight: 0,
+          rotation: 0,
+          scale: 2,
+          anchor: new google.maps.Point(15, 30),
+        };
+
+        for (i = 0; i < locations.length; i++) {
+          if (i == 0) {
+            marker = new google.maps.Marker({
+              icon: svgMarker,
+              position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+              map: map
+            });
+          } else {
+            marker = new google.maps.Marker({
+              position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+              map: map
+            });
+          }
+          google.maps.event.addListener(marker, 'click', (function (marker, i) {
+            return function () {
+              infowindow.setContent(locations[i][0]);
+              infowindow.open(map, marker);
+            }
+          })(marker, i));
+        }
+      </script>
+      <div class="col-xs-12" style="height:0.5em;"></div>
+      <div class="row g-2">
+        <div class="col-sm-10">
+          <h5>Average price: &nbsp;NT${{avergePrice}}&nbsp;( 坪 )</h5>
+        </div>
+        <div class="col align-self-end">
+          <h6 class="text-muted"> {{loopcount}} Results Found</h6>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Address</th>
+              <th scope="col">Price ( 坪 )</th>
+              <th scope="col">Age of Building</th>
+              <th scope="col">Building State</th>
+              <th scope="col">Transaction Sign</th>
+              <th scope="col">Update Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for house in self.houseWithin %}
+            <tr>
+              <th scope="row">{{ house.id }}</th>
+              <td>{{ house.position }}</td>
+              <td>{{ house.TWprice }}</td>
+              <td>{{house.age}}</td>
+              <td>{{house.building_state}}</td>
+              <td>
+                <span class="bg-primary text-white p-1">建</span>
+                {% if '土' in house.transaction_sign %}
+                <span class="bg-success text-white p-1">土</span>
+                {% endif %}
+                {% if '車' in house.transaction_sign %}
+                <span class="bg-warning text-white p-1">車</span>
+                {% endif %}
+              </td>
+              <td>{{ house.last_update }} Days Ago</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
