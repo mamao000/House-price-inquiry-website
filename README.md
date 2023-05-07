@@ -8,4 +8,6 @@ The site then displays recent home transactions within the required distance and
 
 ## Download Link
 
+<img src='https://github.com/mamao000/House-price-inquiry-website/blob/master/qrcode_59071792_89c37a1d6d0661a303d2dda9c1938ecf.png' align='left' width='30%'>
+
 
